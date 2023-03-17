@@ -3,7 +3,7 @@ const Users = require("./users-model");
 const Posts = require("../posts/posts-model");
 // You will need `users-model.js` and `posts-model.js` both
 // The middleware functions also need to be required
-const { validateUserId } = require("../middleware/middleware");
+const { validateUserId, validateUser } = require("../middleware/middleware");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -22,9 +22,13 @@ router.get("/:id", validateUserId, async (req, res) => {
   res.json(req.user);
 });
 
-router.post("/", (req, res) => {
+router.post("/", validateUser, (req, res) => {
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
+
+  Users.insert(req.body)
+    .then((user) => res.status(201).json(user))
+    .catch(() => res.status(500).json({ message: "user was not added" }));
 });
 
 router.put("/:id", (req, res) => {
