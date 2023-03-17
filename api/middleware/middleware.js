@@ -13,7 +13,6 @@ async function validateUserId(req, res, next) {
   // DO YOUR MAGIC
   try {
     const user = await User.getById(req.params.id);
-    console.log("---->", user);
     if (user) {
       req.user = user;
       next();
