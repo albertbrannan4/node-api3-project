@@ -31,15 +31,26 @@ router.post("/", validateUser, (req, res) => {
     .catch(() => res.status(500).json({ message: "user was not added" }));
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId, validateUser, (req, res) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+
+  Users.update(req.params.id, req.body)
+    .then((user) => res.status(200).json(user))
+    .catch(() => res.status(500).json({ message: "user was not updated" }));
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId, async (req, res) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
+  const deletedUser = await Users.getById(req.params.id);
+  try {
+    await Users.remove(req.params.id);
+    res.json(deletedUser);
+  } catch (err) {
+    res.status(500).json({ message: "could not delete user" });
+  }
 });
 
 router.get("/:id/posts", async (req, res) => {
