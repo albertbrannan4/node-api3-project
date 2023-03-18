@@ -3,7 +3,11 @@ const Users = require("./users-model");
 const Posts = require("../posts/posts-model");
 // You will need `users-model.js` and `posts-model.js` both
 // The middleware functions also need to be required
-const { validateUserId, validateUser } = require("../middleware/middleware");
+const {
+  validateUserId,
+  validateUser,
+  validatePost,
+} = require("../middleware/middleware");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -64,10 +68,26 @@ router.get("/:id/posts", validateUserId, async (req, res) => {
   }
 });
 
-router.post("/:id/posts", (req, res) => {
+router.post("/:id/posts", validateUserId, validatePost, async (req, res) => {
   // RETURN THE NEWLY CREATED USER POST
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+  try {
+    const newPost = await Posts.insert({
+      user_id: req.params.id,
+      text: req.text,
+    });
+    res.status(201).json(newPost);
+  } catch (err) {
+    res.status(500).json({ message: "could not add new post" });
+  }
+});
+
+router.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    message: err.message,
+    customMessage: "Something bad happened inside the hubs router",
+  });
 });
 
 // do not forget to export the router

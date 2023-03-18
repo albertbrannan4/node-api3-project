@@ -17,8 +17,8 @@ async function validateUserId(req, res, next) {
       req.user = user;
       next();
     } else {
-      res.status(404).json({ message: "user not found" });
-      next();
+      // res.status(404).json({ message: "user not found" });
+      next({ status: 404, message: "user not found" });
     }
   } catch (err) {
     next(err);
@@ -31,12 +31,21 @@ function validateUser(req, res, next) {
   if (name && typeof name === "string" && name.trim().length) {
     next();
   } else {
-    res.status(400).json({ message: "missing required name field" });
+    // res.status(400).json({ message: "missing required name field" });
+    next({ status: 400, message: "missing required name field" });
   }
 }
 
 function validatePost(req, res, next) {
   // DO YOUR MAGIC
+  const { text } = req.body;
+  if (text && typeof text === "string" && text.trim().length) {
+    req.text = text;
+    next();
+  } else {
+    // res.status(400).json({ message: "missing required text field" });
+    next({ status: 400, message: "missing required text field" });
+  }
 }
 
 // do not forget to expose these functions to other modules
